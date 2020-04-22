@@ -5,13 +5,13 @@ type Service struct {
 	views *ViewsService
 }
 
-func NewRequestService() (*Service, error) {
+func NewRequestService() *Service {
 	s := &Service{
 		store: NewStoreService(requestUpdatePeridicity),
 		views: NewViewsService(),
 	}
 
-	return s, nil
+	return s
 }
 
 // GetRequest returns

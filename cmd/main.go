@@ -15,7 +15,6 @@ import (
 	"github.com/vidmed/request"
 
 	"github.com/pkg/errors"
-	"github.com/vidmed/logger"
 )
 
 var (
@@ -28,21 +27,18 @@ func init() {
 	flag.Parse()
 	config, err := NewConfig(*configFileName)
 	if err != nil {
-		logger.Get().Fatalf("ERROR loading config: %s\n", err.Error())
+		request.GetLogger().Fatalf("ERROR loading config: %s\n", err.Error())
 	}
 	// InitLogger logging, logger goes first since other components may use it
-	logger.Init(int(config.Main.LogLevel))
+	request.InitLogger(int(config.Main.LogLevel))
 
 	// InitLogger Service
-	requestService, err = request.NewRequestService()
-	if err != nil {
-		logger.Get().Fatalf("ERROR creating Service: %s\n", err.Error())
-	}
+	requestService = request.NewRequestService()
 }
 
 func main() {
 	numCPUs := runtime.NumCPU()
-	logger.Get().Infof("CPUs count %d", numCPUs)
+	request.GetLogger().Infof("CPUs count %d", numCPUs)
 	runServer()
 }
 
@@ -63,16 +59,16 @@ func runServer() {
 		fmt.Printf("Shutdown with timeout: %s\n", timeout)
 
 		if err := hs.Shutdown(ctx); err != nil {
-			logger.Get().Errorf("Error: %v\n", err)
+			request.GetLogger().Errorf("Error: %v\n", err)
 		} else {
-			logger.Get().Infof("Server stopped")
+			request.GetLogger().Infof("Server stopped")
 		}
 		cancel()
 	}()
 
-	logger.Get().Infof("Listening on http://%s\n", hs.Addr)
+	request.GetLogger().Infof("Listening on http://%s\n", hs.Addr)
 	if err := hs.ListenAndServe(); err != http.ErrServerClosed {
-		logger.Get().Error(err)
+		request.GetLogger().Error(err)
 	}
 
 	// stop service here
@@ -80,7 +76,7 @@ func runServer() {
 }
 
 func requestHandler(w http.ResponseWriter, _ *http.Request) {
-	logger.Get().Debug("requestHandler")
+	request.GetLogger().Debug("requestHandler")
 	resp := requestService.GetRequest()
 
 	w.Header().Set("Content-Type", "text/plain")
@@ -90,7 +86,7 @@ func requestHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func viewsHandler(w http.ResponseWriter, _ *http.Request) {
-	logger.Get().Debug("viewsHandler")
+	request.GetLogger().Debug("viewsHandler")
 	var resBytes []byte
 	views := requestService.GetViews()
 	if len(views) == 0 {
@@ -110,7 +106,7 @@ func recoverHandler(handler func(http.ResponseWriter, *http.Request)) func(http.
 		defer func() {
 			if errR := recover(); errR != nil {
 				err := errors.Errorf("panic: %+v", errR)
-				logger.Get().Error(err)
+				request.GetLogger().Error(err)
 				debug.PrintStack()
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}

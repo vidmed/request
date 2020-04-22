@@ -20,7 +20,7 @@ When views are not empty - you should see HTTP 200 Ok and a request statistics i
 
 To test you can call ab (apache benchmark):
 
-`ab -c 8 -n 10000 "http://localhost:8899/request"`
+`ab -c 100 -n 100000 "http://localhost:8899/request"`
 
 ### Stopping app
 To stop application press `CTRL+C`. This will gracefully stop the server.

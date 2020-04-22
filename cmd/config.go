@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/vidmed/request"
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/vidmed/logger"
 )
 
 var configInstance *TomlConfig
@@ -40,10 +40,10 @@ func NewConfig(file string) (*TomlConfig, error) {
 	// check required fields
 	// Main
 	if configInstance.Main.ListenAddr == "" {
-		logger.Get().Fatalln("Main.ListenAddr must be specified. Check your Config file")
+		request.GetLogger().Fatalln("Main.ListenAddr must be specified. Check your Config file")
 	}
 	if configInstance.Main.ListenPort == 0 {
-		logger.Get().Fatalln("Main.ListenPort must be specified. Check your Config file")
+		request.GetLogger().Fatalln("Main.ListenPort must be specified. Check your Config file")
 	}
 	return configInstance, nil
 }
@@ -53,7 +53,7 @@ func dump(cfg *TomlConfig) {
 	e := toml.NewEncoder(&buffer)
 	err := e.Encode(cfg)
 	if err != nil {
-		logger.Get().Fatal(err)
+		request.GetLogger().Fatal(err)
 	}
 
 	fmt.Println(

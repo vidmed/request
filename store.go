@@ -3,8 +3,6 @@ package request
 import (
 	"sync"
 	"time"
-
-	"github.com/vidmed/logger"
 )
 
 // StoreService is a representation of request store entity.
@@ -47,7 +45,7 @@ func (s *StoreService) GetRequest() Request {
 
 // Close closes StoreService
 func (s *StoreService) Close() {
-	logger.Get().Debug("StoreService: Close")
+	GetLogger().Debug("StoreService: Close")
 
 	if s.Closed() {
 		return
@@ -95,7 +93,7 @@ func (s *StoreService) replaceRequest() {
 	newR := s.generateRequest()
 	s.setRequest(i, newR)
 
-	logger.Get().Debugf("StoreService: request replaced: index - %d, old - %s, new - %s", i, r.String(), newR.String())
+	GetLogger().Debugf("StoreService: request replaced: index - %d, old - %s, new - %s", i, r.String(), newR.String())
 }
 
 // update is blocking method. It takes periodicity argument (p)
@@ -106,7 +104,7 @@ func (s *StoreService) update(p time.Duration) {
 	for {
 		select {
 		case <-s.done:
-			logger.Get().Debug("StoreService: update terminated")
+			GetLogger().Debug("StoreService: update terminated")
 			return
 		case <-ticker.C:
 			s.replaceRequest()
